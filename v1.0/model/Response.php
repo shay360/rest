@@ -1,5 +1,4 @@
 <?php
-
 class Response
 {
     // class response properties
@@ -46,7 +45,7 @@ class Response
      */
     public function addMessage($message)
     {
-        $this->message[] = $message;
+        $this->messages[] = $message;
     }
 
     /**
@@ -86,13 +85,13 @@ class Response
         if ($this->serverError()) { // If success is not tru and not false there is a server error or the status code is not numeric
             http_response_code(500); // Server Error
             $this->addMessage('Internal server error'); // set error message
-            $this->responseData['messages'] = $this->message; // Add the messages Array (in this case 'Internal server error'
+            $this->responseData['messages'] = $this->messages; // Add the messages Array (in this case 'Internal server error'
             $this->responseData['status_code'] = 500; // set the error code to the json response
             $this->responseData['success'] = false; // set the 'success' to false (server_error)
         } else {
             http_response_code($this->httpStatusCode); // set the status code for the response
             $this->responseData['data'] = $this->data;
-            $this->responseData['messages'] = $this->message;
+            $this->responseData['messages'] = $this->messages;
             $this->responseData['status_code'] = $this->httpStatusCode; // set the response status code
             $this->responseData['success'] = $this->success; // set the response success status
         }
