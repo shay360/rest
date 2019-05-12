@@ -64,7 +64,9 @@ class Response
 
     /**
      * Set the toCache property
+     *
      * @param (Bool) $toCache
+     * @author Shay Zeevi
      */
     public function toCache($toCache)
     {
