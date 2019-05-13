@@ -1,5 +1,5 @@
 <?php
-class CampaignException extends Exception
+class CampaignsException extends Exception
 {
 
 }

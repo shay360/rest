@@ -83,21 +83,38 @@ class Response
     {
         header('Content-type: application/json;charset=utf-8'); // set response to json with utf-8 charset
         $this->toCache == true ? header('Cache-control: max-age=120') : header('Cache-control: no-cache, no-store'); // Set cache or no-cache
-        if ($this->serverError()) { // If success is not tru and not false there is a server error or the status code is not numeric
-            http_response_code(500); // Server Error
-            $this->addMessage('Internal server error'); // set error message
-            $this->responseData['messages'] = $this->messages; // Add the messages Array (in this case 'Internal server error'
-            $this->responseData['status_code'] = 500; // set the error code to the json response
-            $this->responseData['success'] = false; // set the 'success' to false (server_error)
+        if ($this->serverError()) {
+            http_response_code(500);
+            $this->addMessage('Internal server error');
+            $this->responseData['messages'] = $this->messages;
+            $this->responseData['status_code'] = 500;
+            $this->responseData['success'] = false;
+        } elseif (!$this->authSent()) {
+            http_response_code(401);
+            $this->addMessage('Authorization header not sent');
+            $this->responseData['messages'] = $this->messages;
+            $this->responseData['status_code'] = 500;
+            $this->responseData['success'] = false;
         } else {
-            http_response_code($this->httpStatusCode); // set the status code for the response
+            http_response_code($this->httpStatusCode);
             $this->responseData['data'] = $this->data;
             $this->responseData['messages'] = $this->messages;
-            $this->responseData['status_code'] = $this->httpStatusCode; // set the response status code
-            $this->responseData['success'] = $this->success; // set the response success status
+            $this->responseData['status_code'] = $this->httpStatusCode;
+            $this->responseData['success'] = $this->success;
         }
-        echo json_encode($this->responseData, JSON_UNESCAPED_SLASHES); // return the response as json encoded
+        echo json_encode(); // return the response as json encoded
     }
+
+    /**
+     * Check Autho Header will check if there is Authorization header sent with the request
+     * @return bool
+     */
+    private function authSent()
+    {
+        $headers = apache_request_headers();
+        return isset($headers['Authorization']) && $headers['Authorization'] === '26633b0b3fb5007df2c7f969c46829c8' ? true : false;
+    }
+
 
     /**
      * This method will check the success and http status code and if some of them will be false the method will return true

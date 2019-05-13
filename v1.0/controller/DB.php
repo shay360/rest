@@ -9,7 +9,7 @@ class DB
     public static function connectWriteDB()
     {
         if (self::$writeDBConnection === null) { // Singleton pattern for creating only single write connection
-            self::$writeDBConnection = new PDO('mysql:host=localhost;dbname=bmsdev;charset=utf8', 'root', '');
+            self::$writeDBConnection = new PDO('mysql:host=192.168.0.101;dbname=bms;charset=utf8', 'root', 'toor');
             self::$writeDBConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // set the error mode of PDO
             self::$writeDBConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false); // mysql already handles prepare statements so no need to emulate it
         }
@@ -19,7 +19,7 @@ class DB
     public static function connectReadDB()
     {
         if (self::$readDBConnection === null) { // Singleton pattern for creating only single write connection
-            self::$readDBConnection = new PDO('mysql:host=localhost;dbname=bmsdev;charset=utf8', 'root', '');
+            self::$readDBConnection = new PDO('mysql:host=192.168.0.101;dbname=bms;charset=utf8', 'root', 'toor');
             self::$readDBConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // set the error mode of PDO
             self::$readDBConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false); // mysql already handles prepare statements so no need to emulate it
         }

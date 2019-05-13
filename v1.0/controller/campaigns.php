@@ -1,15 +1,18 @@
 <?php
+
 // Import important files
 require_once('DB.php'); // DB Configuration
 require_once('../model/Campaigns.php'); // import the campaigns model
-require_once('../model/Response.php'); // import the response class
-$severMethod = $_SERVER['REQUEST_METHOD']; // get the request method
+require_once('../exceptions/CampaignsException.php'); // import the campaigns model
+require_once('../router/Response.php'); // import the response class
+
+$serverMethod = $_SERVER['REQUEST_METHOD']; // get the request method
 
 try { // try to connect DB
     $writeDB = DB::connectWriteDB();
     $readDB = DB::connectReadDB();
 } catch (PDOException $e) { // if connection failed
-    error_log('DB Connection error: ' . $e->getMessage());
+    error_log('DB Connection error: ' . $e->getMessage(), 0);
     $response = new Response();
     $response->setHttpStatusCode(500);
     $response->setSuccess(false);
@@ -19,9 +22,9 @@ try { // try to connect DB
 }
 header('Content-type: application/json;charset=utf-8'); // set headers to json
 
-if ($severMethod === 'GET') { // build the get method
+if ($serverMethod === 'GET') { // build the get method
     try {
-        $query = $readDB->prepare('SELECT * FROM bms_extractor WHERE is_active=1');
+        $query = $readDB->prepare('SELECT campaign_id, `name`, campaign_type, start_date, end_date, banner, circle, is_active, update_time FROM bms_table');
         $query->execute();
         $rowCount = $query->rowCount();
         if ($rowCount === 0) {
@@ -34,15 +37,21 @@ if ($severMethod === 'GET') { // build the get method
         }
         $constructorObject = [];
         while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
-            $constructorObject['id'] = $row['extractor_id'];
-            $constructorObject['campaign_obj'] = $row['campaign_obj'];
+            $constructorObject['id'] = $row['campaign_id'];
+            $constructorObject['campaign_name'] = $row['name'];
+            $constructorObject['campaign_type'] = $row['campaign_type'];
+            $constructorObject['start_date'] = $row['start_date'];
+            $constructorObject['end_date'] = $row['end_date'];
+            $constructorObject['banner'] = $row['banner'];
+            $constructorObject['circle'] = $row['circle'];
+            $constructorObject['is_active'] = $row['is_active'];
+            $constructorObject['update_time'] = $row['update_time'];
             $campaign = new Campaigns($constructorObject);
             $campaignArray[] = $campaign->returnCampaignsAsArray();
         }
-
         $returnData = [];
         $returnData['count'] = $rowCount;
-        $returnData['campaigns'] = $campaignArray;
+        $returnData['results'] = $campaignArray;
         $response = new Response();
         $response->setHttpStatusCode(200);
         $response->setSuccess(true);
@@ -50,8 +59,8 @@ if ($severMethod === 'GET') { // build the get method
         $response->setData($returnData);
         $response->send();
         exit;
-    } catch (CampaignException $e) {
-        error_log('Query Error');
+    } catch (CampaignsException $e) {
+        error_log('Query Error', 0);
         $response = new Response();
         $response->setHttpStatusCode(500);
         $response->setSuccess(false);
@@ -59,7 +68,7 @@ if ($severMethod === 'GET') { // build the get method
         $response->send();
         exit;
     } catch (PDOException $e) {
-        error_log('DB Connection error: ' . $e->getMessage());
+        error_log('DB Connection error: ' . $e->getMessage(), 0);
         $response = new Response();
         $response->setHttpStatusCode(500);
         $response->setSuccess(false);
@@ -67,7 +76,7 @@ if ($severMethod === 'GET') { // build the get method
         $response->send();
         exit;
     }
-} elseif ($severMethod === 'OPTIONS') { // build the options method
+} elseif ($serverMethod === 'OPTIONS') { // build the options method
     echo json_encode([
             'methods' => [
                 'GET' => [
