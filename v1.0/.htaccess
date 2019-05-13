@@ -1,1 +1,5 @@
-php_flag display_errors on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-s
+RewriteRule ^(.*)$ index.php?_rest=$1 [QSA,NC,L]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^(.*)$ index.php [QSA,NC,L]

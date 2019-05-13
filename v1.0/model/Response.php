@@ -1,4 +1,5 @@
 <?php
+
 class Response
 {
     // class response properties
@@ -95,7 +96,7 @@ class Response
             $this->responseData['status_code'] = $this->httpStatusCode; // set the response status code
             $this->responseData['success'] = $this->success; // set the response success status
         }
-        echo json_encode($this->responseData); // return the response as json encoded
+        echo json_encode($this->responseData, JSON_UNESCAPED_SLASHES); // return the response as json encoded
     }
 
     /**
