@@ -1,10 +1,6 @@
 <?php
-
-// Import important files
-require_once('DB.php'); // DB Configuration
+require_once ('../init.php');
 require_once('../model/Campaign.php'); // import the campaigns model
-require_once('../exceptions/CampaignException.php'); // import the campaigns model
-require_once('../router/Response.php'); // import the response class
 
 $serverMethod = $_SERVER['REQUEST_METHOD']; // get the request method
 try { // try to connect DB
@@ -12,12 +8,7 @@ try { // try to connect DB
     $readDB = DB::connectReadDB();
 } catch (PDOException $e) { // if connection failed
     error_log('DB Connection error: ' . $e->getMessage(), 0);
-    $response = new Response();
-    $response->setHttpStatusCode(500);
-    $response->setSuccess(false);
-    $response->addMessage('DB Connection error: ' . $e->getMessage());
-    $response->send();
-    exit;
+    $response = Utils::setErrorResponse(_STATUS_INTERNAL_SERVER_ERROR);
 }
 header('Content-type: application/json;charset=utf-8'); // set headers to json
 if ($serverMethod === 'GET') {
@@ -37,12 +28,7 @@ if ($serverMethod === 'GET') {
             $query->execute();
             $rowCount = $query->rowCount();
             if ($rowCount === 0) {
-                $response = new Response();
-                $response->setHttpStatusCode(404);
-                $response->setSuccess(false);
-                $response->addMessage('No Campaigns Found');
-                $response->send();
-                exit;
+                $response = Utils::setErrorResponse(_STATUS_NO_CONTENT);
             }
             $constructorObject = [];
             while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
@@ -73,12 +59,7 @@ if ($serverMethod === 'GET') {
 
         }
     } else {
-        $response = new Response();
-        $response->setHttpStatusCode(400);
-        $response->setSuccess(false);
-        $response->addMessage('Campaign ID cannot be empty');
-        $response->send();
-        exit;
+        $response = Utils::setErrorResponse(_STATUS_BAD_REQUEST);
     }
 } elseif ($serverMethod === 'POST') {
 
@@ -100,10 +81,5 @@ if ($serverMethod === 'GET') {
         ]
     );
 } else {
-    $response = new Response();
-    $response->setHttpStatusCode(405);
-    $response->setSuccess(false);
-    $response->addMessage('Request method is not allowed');
-    $response->send();
-    exit;
+    $response = Utils::setErrorResponse(_STATUS_MOETHOD_NOT_ALLOWED);
 }

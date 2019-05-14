@@ -102,7 +102,7 @@ class Response
             $this->responseData['status_code'] = $this->httpStatusCode;
             $this->responseData['success'] = $this->success;
         }
-        echo json_encode(); // return the response as json encoded
+        echo json_encode($this->responseData); // return the response as json encoded
     }
 
     /**
