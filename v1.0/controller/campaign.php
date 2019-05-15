@@ -1,5 +1,5 @@
 <?php
-require_once ('../init.php');
+require_once('../init.php');
 require_once('../model/Campaign.php'); // import the campaigns model
 
 $serverMethod = $_SERVER['REQUEST_METHOD']; // get the request method
@@ -15,12 +15,7 @@ if ($serverMethod === 'GET') {
     if (array_key_exists('id', $_GET)) {
         $campaignID = $_GET['id'];
         if (empty($campaignID) || !is_numeric($campaignID)) {
-            $response = new Response();
-            $response->setHttpStatusCode(400);
-            $response->setSuccess(false);
-            $response->addMessage('Campaign ID must be numeric (int)');
-            $response->send();
-            exit;
+            $response = Utils::setErrorResponse(_STATUS_BAD_REQUEST);
         }
         try {
             $query = $readDB->prepare("SELECT * FROM bms_extractor WHERE extractor_id = ?");
@@ -64,6 +59,37 @@ if ($serverMethod === 'GET') {
 } elseif ($serverMethod === 'POST') {
 
 } elseif ($serverMethod === 'PUT') {
+    $jsonData = json_decode(file_get_contents('php://input'));
+
+    if (array_key_exists('id', $jsonData)) {
+        $campaignID = $jsonData->id;
+        if (empty($campaignID) || !is_numeric($campaignID)) {
+            $response = Utils::setErrorResponse(_STATUS_BAD_REQUEST);
+        }
+    }
+    if (array_key_exists('deactivate', $jsonData)) {
+        $deactivate = filter_var($jsonData->deactivate, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    if ($deactivate && $campaignID > 0) {
+        $query = $readDB->prepare("UPDATE bms_extractor SET is_active=0 WHERE extractor_id=?");
+        $query->bindParam(1, $campaignID, PDO::PARAM_INT);
+        $query->execute();
+        $rowCount = $query->rowCount();
+        if ($rowCount === 0) {
+            $response = Utils::setErrorResponse(_STATUS_NO_CONTENT);
+        }
+
+        $response = new Response();
+        $response->setHttpStatusCode(200);
+        $response->setSuccess(true);
+        $response->toCache(false);
+        $response->setData('Campaign updated');
+        $response->send();
+        exit;
+
+    }
+
 
 } elseif ($serverMethod === 'OPTIONS') {
     echo json_encode([
@@ -74,6 +100,20 @@ if ($serverMethod === 'GET') {
                         'id' => [
                             'type' => 'int',
                             'required' => true
+                        ]
+                    ]
+                ],
+                'PUT' => [
+                    'description' => 'will update specific campaign by id',
+                    'args' => [
+                        'id' => [
+                            'type' => 'int',
+                            'required' => true
+                        ],
+                        'deactivate' => [
+                            'description' => 'will set selected campaign to not active',
+                            'type' => 'boolean',
+                            'required' => false
                         ]
                     ]
                 ]

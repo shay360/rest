@@ -15,7 +15,7 @@ header('Content-type: application/json;charset=utf-8'); // set headers to json
 
 if ($serverMethod === 'GET') { // build the get method
     try {
-        $query = $readDB->prepare('SELECT campaign_id, `name`, campaign_type, start_date, end_date, banner, circle, is_active, update_time FROM bms_table');
+        $query = $readDB->prepare('SELECT * from bms_table WHERE campaign_type != 3 AND is_active = 1 ORDER BY table_id DESC');
         $query->execute();
         $rowCount = $query->rowCount();
         if ($rowCount === 0) {
