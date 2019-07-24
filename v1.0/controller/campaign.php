@@ -2,6 +2,13 @@
 require_once('../init.php');
 require_once('../model/Campaign.php'); // import the campaigns model
 
+/*
+// Check for error in DEBUG
+set_error_handler(function ($errno, $errmsg, $file, $line) {
+    var_dump("$errmsg in $file($line)");
+});
+*/
+
 $serverMethod = $_SERVER['REQUEST_METHOD']; // get the request method
 try { // try to connect DB
     $writeDB = DB::connectWriteDB();
